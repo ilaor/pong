@@ -35,43 +35,139 @@ const gameStateEnum = {
     END: 3,
 };
 
-// ------------------------------------------------------------------
-// MOTOR GRÁFICO / GRAPHICS ENGINE
-// ------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------
+//MOTOR GRÁFICO (GRAPHICS ENGINE) 
+//-------------------------------------------------------------------------------------------------------------------------------
 
-//Recuperamos el canvas del html
-const cvs = document.getElementById('pong_canvas');
-const ctx = cvs.getContext('2d');
 
-// LAYER 0: BASIC CANVAS DRAW HELPERS --------------------------------
 
-function drawRect(x, y, w, h, color){
-    //RECTÁNGULO
-    ctx.fillStyle = color;
-    ctx.fillRect(x,y,w,h,color);
+//RECUPERAMOS CANVAS
+const cvs=document.getElementById('pong_canvas');
+const ctx=cvs.getContext('2d');
+
+
+//LAYER 0:BASIC CANVAS DRAW HELPERS----------------------------------------------------------------------------------------------
+
+function drawRect(x,y,w,h,color){
+    ctx.fillStyle =color;
+    ctx.fillRect(x,y,w,h);
 }
 
-function drawCircle(x, y, r, color){
-    //CIRCULO
-    ctx.fillStyle = color;
+function drawCircle(x,y,r,color){
+    ctx.fillStyle =color;
     ctx.beginPath();
-    ctx.arc(x, y, r,0 ,2*Math.PI);
+    ctx.arc(x,y,r,0,2*Math.PI);
     ctx.closePath();
     ctx.fill();
 }
 
-function drawText(text, x, y, color=FONT_COLOR, fontSize= FONT_SIZE, fontFamily=FONT_FAMILY){
-    //TEXTO
-    ctx.fillStyle= color;
-    ctx.font = `${fontSize} ${fontFamily}`;
-    ctx.fillText(text, x, y);
+function drawText(text,x,y,color=FONT_COLOR,fontSize=FONT_SIZE, fontFamily=FONT_FAMILY){ //por si no me lo pasan
+ctx.fillStyle=color;
+ctx.font=`${fontSize} ${fontFamily}`;
+ctx.fillText(text,x,y);
 }
 
-const CANVAS_WIDTH = cvs.width;
-const CANVAS_HEIGTH = cvs.height;
+//LAYER 1:BASIC PONG HELPERS----------------------------------------------------------------------------------------------
 
-drawRect(0,0, CANVAS_WIDTH, CANVAS_HEIGTH );
-drawCircle(50,60,20, 'WHITE' );
-drawText('SALUDOS', 200, 200, 'BLUE')
+function clearCanvas(){
+    drawRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT,'BLACK');
+  
+}
+
+function drawNet(){
+    const net={
+        x:CANVAS_WIDTH/2-NET_WIDTH/2,
+        y:0,
+        width: NET_WIDTH,
+        height: NET_HEIGHT,
+        padding: NET_PADDING,
+        color: NET_COLOR
+
+    };
+    for(let i=0; i<=CANVAS_HEIGHT; i+=net.padding){
+       drawRect(net.x,net.y+i,net.width, net.height,net.color)
+    }
+        
+}
+
+function drawBoard(){
+    clearCanvas();
+    drawNet();
+}
+
+function drawScore(players){
+    for(let id in players ){
+        drawText(
+            players[id].score,
+            (players[id].x === 0 ? 1 : 3) * CANVAS_WIDTH/4,
+            CANVAS_HEIGHT/5,
+            FONT_SCORE_COLOR
+        );
+    };
+}
+
+function drawPaddle(paddle){
+    drawRect(paddle.x, paddle.y, paddle.width, paddle.height, paddle.color);
+}
+
+function drawBall(ball){
+    drawCircle(ball.x, ball.y, ball.radius, ball.color);
+}
+
+//-------------------------------------------------------------------------------------------------------------------------------
+//MOTOR DE JUEGO
+//-------------------------------------------------------------------------------------------------------------------------------
+
+const CANVAS_WIDTH=cvs.width;
+const CANVAS_HEIGHT=cvs.height;
+
+// GENERIC HELPERS ---------------------------------------------------------------------------------------------------------------
+
+function getPlayer(index){
+    return players[index];
+}
+
+// OBJETOS DEL JUEGO -------------------------------------------------------------------------------------------------------------
 
 
+// Declaramos los objetos del juego 
+let gameState= gameStateEnum.SYNC;
+let players= {};
+let ball= {};
+
+// inicializamos los objetos
+players[0] = {
+    x: 0,
+    y: CANVAS_HEIGHT/2 - PADDLE_HEIGHT/2,
+    width: PADDLE_WIDTH,
+    height: PADDLE_HEIGHT,
+    color: PADDLE_LEFT_COLOR,
+    score: 0
+}; 
+
+players[1] = {
+    x: CANVAS_WIDTH - PADDLE_WIDTH,
+    y: CANVAS_HEIGHT/2 - PADDLE_HEIGHT/2,
+    width: PADDLE_WIDTH,
+    height: PADDLE_HEIGHT,
+    color: PADDLE_RIGHT_COLOR,
+    score: 0
+}; 
+
+ball = {
+    x: CANVAS_WIDTH/2,
+    y: CANVAS_HEIGHT/2,
+    radius: BALL_RADIUS,
+    speed: BALL_VELOCITY,
+    velocityX: BALL_VELOCITY,
+    velocityY: BALL_VELOCITY,
+    color: BALL_COLOR
+}
+
+drawBoard();
+drawScore(players);
+//dibujar paddle con el array
+for(let id in [0,1]){
+    drawPaddle(getPlayer(id));
+};
+drawBall(ball);
