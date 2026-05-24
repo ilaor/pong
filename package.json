@@ -1,6 +1,6 @@
 {
   "name": "pong",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Juego Pong Multijugador en Red",
   "main": "game-server.js",
   "scripts": {
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://antoniooalfaro28@bitbucket.org/aaa173/pong.git"
+    "url": "https://github.com/ilaor/pong.git"
   },
-  "author": "Antonio Alfaro",
+  "author": "Ivan Lara",
   "license": "ISC",
   "bugs": {
-    "url": "https://bitbucket.org/aaa173/pong/issues"
+    "url": "https://github.com/ilaor/pong.git"
   },
-  "homepage": "https://bitbucket.org/aaa173/pong#readme",
+  "homepage": "https://github.com/ilaor/pong#readme",
   "dependencies": {
     "express": "^5.1.0",
     "socket.io": "^4.8.1"
