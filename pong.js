@@ -124,11 +124,27 @@ function drawBall(ball){
 //MOTOR DE JUEGO
 //-------------------------------------------------------------------------------------------------------------------------------
 
+//Manejador de eventos del ratón (handle del ratón)-------------------------------------------------------------------------------------------
+function initPaddleMovement(){
+    cvs.addEventListener('mousemove', (event)=>{
+        if(gameState !== gameStateEnum.PLAY) return;
+
+        const localPlayer = getPlayer(0);
+        const rect = cvs.getBoundingClientRect();
+
+        localPlayer.y = event.clientY - (localPlayer.height/2) - rect.top;
+    });
+}
 
 const CANVAS_WIDTH=cvs.width;
 const CANVAS_HEIGHT=cvs.height;
 
 //GENERIC HELPERS-----------------------------------------------------------------------------------------------------------------------------
+
+function getRandomDirection(){
+    return Math.floor(Math.random()*2) === 0 ? -1 : 1;
+}
+
 function getPlayer(index){
     return players[index];
 }
@@ -160,19 +176,26 @@ function initGameObjects(){
         score:0
     };
 
+    newBall(true);
+  
+}
+
+function newBall(init = false){
+    
+    //Si la pelota ya estaba definida (es un tanto) cambiamos de sentido en ejeX
+    const directionX = init ? getRandomDirection() : (ball.velocityX > 0 ? -1 : 1);
+    
     ball={
         x:CANVAS_WIDTH/2, 
         y:CANVAS_HEIGHT/2, 
         radius:BALL_RADIUS,
         speed:BALL_VELOCITY,
-        velocityX:BALL_VELOCITY,
-        velocityY:BALL_VELOCITY,
+        velocityX:BALL_VELOCITY * directionX,
+        velocityY:BALL_VELOCITY * getRandomDirection(),
         color:BALL_COLOR,
     
     };
-  
 }
-
 
 //---BUCLE DEL JUEGO-------------------------------------------------------------------------------------------------------------------------------
 
@@ -250,19 +273,60 @@ function update(){
         //Incrementamos la velocidad de la pelota cada vez que golpea la pala
         ball.speed += BALL_DELTA_VELOCITY;
     }
+
+    const ballLeft = ball.x - ball.radius;
+    const ballRight = ball.x + ball.radius;
+
+    if(ballLeft < 0) {
+        console.log('Tanto para el jugador de la derecha');
+        getPlayer(1).score++;
+        newBall();
+    }else if(ball < CANVAS_WIDTH){
+        console.log('Tanto para el jugador de la izquierda');
+        getPlayer(0).score++;
+        newBall();
+    }
 }
 
 function render(){
-    drawBoard();
-    drawScore(players);
-    for(let id in [0,1]){
-        drawPaddle(getPlayer(id));
-    };
-    drawBall(ball);
+    if(gameState===gameStateEnum.PAUSE){
+        drawText('PAUSA', CANVAS_WIDTH/4, CANVAS_HEIGHT/2);
+        return;
+    }
+    if(gameState===gameStateEnum.SYNC){
+        drawText('Esperando rival....', CANVAS_WIDTH/4, CANVAS_HEIGHT/2);
+        return;
+    }
+    if(gameState===gameStateEnum.PLAY){
+        drawBoard();
+        drawScore(players);
+        for(let id in [0,1]){
+            drawPaddle(getPlayer(id));
+        };
+        drawBall(ball);
+    }
+    if(gameState===gameStateEnum.END){
+        drawBoard();
+        drawScore(players);
+        for(let id in [0,1]){
+            drawPaddle(getPlayer(id));
+        };
+        drawText('GAME OVER', CANVAS_WIDTH/4, CANVAS_HEIGHT/2);
+    }
 }
 
 function next(){
-    console.log('Calculando siguiente estado del juego');
+    //Si ha terminado la partida
+    if(gameState === gameStateEnum.END){
+        console.log('Game Over')
+        stopGameLoop();
+        return;
+    };
+
+    //Si ha ganado alguien... terminamos la partida
+    if((getPlayer(0).score>=NUM_BALLS) || (getPlayer(1).score>=NUM_BALLS) ){
+        gameState = gameStateEnum.END;
+    }
 }
 
 
@@ -290,6 +354,7 @@ function stopGameLoop(){
 function init(){
     initGameObjects();
     drawBoard();
+    initPaddleMovement();
     initGameLoop();
 }
 
