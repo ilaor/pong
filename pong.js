@@ -67,6 +67,10 @@ ctx.font=`${fontSize} ${fontFamily}`;
 ctx.fillText(text,x,y);
 }
 
+//drawCircle(60,60,10,'WHITE');
+//drawText("Saludos!!",200,200,'BLUE')
+
+
 //LAYER 1:BASIC PONG HELPERS----------------------------------------------------------------------------------------------
 
 function clearCanvas(){
@@ -95,79 +99,127 @@ function drawBoard(){
     drawNet();
 }
 
+
+
 function drawScore(players){
-    for(let id in players ){
+    for(let id in players){
         drawText(
             players[id].score,
-            (players[id].x === 0 ? 1 : 3) * CANVAS_WIDTH/4,
+            (players[id].x===0? 1 : 3)*CANVAS_WIDTH/4, //significa que es el de la izquierda
             CANVAS_HEIGHT/5,
             FONT_SCORE_COLOR
         );
-    };
+    }
 }
 
 function drawPaddle(paddle){
-    drawRect(paddle.x, paddle.y, paddle.width, paddle.height, paddle.color);
+    drawRect(paddle.x,paddle.y,paddle.width,paddle.height,paddle.color);
 }
 
 function drawBall(ball){
-    drawCircle(ball.x, ball.y, ball.radius, ball.color);
+    drawCircle(ball.x,ball.y,ball.radius,ball.color)   
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
 //MOTOR DE JUEGO
 //-------------------------------------------------------------------------------------------------------------------------------
 
+
 const CANVAS_WIDTH=cvs.width;
 const CANVAS_HEIGHT=cvs.height;
 
-// GENERIC HELPERS ---------------------------------------------------------------------------------------------------------------
-
+//GENERIC HELPERS-----------------------------------------------------------------------------------------------------------------------------
 function getPlayer(index){
     return players[index];
 }
 
-// OBJETOS DEL JUEGO -------------------------------------------------------------------------------------------------------------
+//---OBJETOS DEL JUEGO-------------------------------------------------------------------------------------------------------------------------------
+//Declaramos los objetos del juego
 
+let gameState=gameStateEnum.SYNC;
+let players={};
+let ball={}; 
 
-// Declaramos los objetos del juego 
-let gameState= gameStateEnum.SYNC;
-let players= {};
-let ball= {};
+function initGameObjects(){
+  //Inicializamos los objetos del juego
+    players[0]={
+        x:0,
+        y:CANVAS_HEIGHT/2-PADDLE_HEIGHT/2, //para que saque la pala en el medio
+        width:PADDLE_WIDTH,
+        height:PADDLE_HEIGHT,
+        color:PADDLE_LEFT_COLOR,
+        score:0
+    };
 
-// inicializamos los objetos
-players[0] = {
-    x: 0,
-    y: CANVAS_HEIGHT/2 - PADDLE_HEIGHT/2,
-    width: PADDLE_WIDTH,
-    height: PADDLE_HEIGHT,
-    color: PADDLE_LEFT_COLOR,
-    score: 0
-}; 
+    players[1]={
+        x:CANVAS_WIDTH-PADDLE_WIDTH, //ESTA A LA DERECHE
+        y:CANVAS_HEIGHT/2-PADDLE_HEIGHT/2, //para que saque la pala en el medio
+        width:PADDLE_WIDTH,
+        height:PADDLE_HEIGHT,
+        color:PADDLE_RIGHT_COLOR,
+        score:0
+    };
 
-players[1] = {
-    x: CANVAS_WIDTH - PADDLE_WIDTH,
-    y: CANVAS_HEIGHT/2 - PADDLE_HEIGHT/2,
-    width: PADDLE_WIDTH,
-    height: PADDLE_HEIGHT,
-    color: PADDLE_RIGHT_COLOR,
-    score: 0
-}; 
-
-ball = {
-    x: CANVAS_WIDTH/2,
-    y: CANVAS_HEIGHT/2,
-    radius: BALL_RADIUS,
-    speed: BALL_VELOCITY,
-    velocityX: BALL_VELOCITY,
-    velocityY: BALL_VELOCITY,
-    color: BALL_COLOR
+    ball={
+        x:CANVAS_WIDTH/2, 
+        y:CANVAS_HEIGHT/2, 
+        radius:BALL_RADIUS,
+        speed:BALL_VELOCITY,
+        velocityX:BALL_VELOCITY,
+        velocityY:BALL_VELOCITY,
+        color:BALL_COLOR,
+    
+    };
+  
 }
 
-drawBoard();
-drawScore(players);
-//dibujar paddle con el array
-for(let id in [0,1]){
-    drawPaddle(getPlayer(id));
-};
-drawBall(ball);
+
+//---BUCLE DEL JUEGO-------------------------------------------------------------------------------------------------------------------------------
+
+function update(){
+    console.log('Actualizando el juego');
+}
+
+function render(){
+  drawBoard();
+    drawScore(players);
+    for(let id in [0,1]){
+        drawPaddle(getPlayer(id));
+    };
+    drawBall(ball);
+}
+
+function next(){
+    console.log('Calculando siguiente estado del juego');
+}
+
+
+//Helpers para gestionar el bucle del juego
+let gameLoopID; //identificador del bucle del uego
+function gameLoop(){
+    update();
+    render();
+    next();
+}
+
+function initGameLoop(){
+    gameLoopID = setInterval(gameLoop,1000/FRAME_PER_SECOND); //lo llama mil veces por segundo
+    gameState= gameStateEnum.PLAY;
+}
+
+function stopGameLoop(){
+    clearInterval(gameLoopID);
+}
+
+//--------------------------------------------------------------------------------------------------------------------
+//Inicialización del motor de juego
+//--------------------------------------------------------------------------------------------------------------------
+
+function init(){
+    initGameObjects();
+    drawBoard();
+    initGameLoop();
+}
+
+//PUNTO DE ENTRADA
+init();
