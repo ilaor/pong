@@ -196,7 +196,7 @@ function update(){
         console.log('Tanto para el jugador de la derecha');
         getPlayer(1).score++;
         newBall();
-    }else if(ball < CANVAS_WIDTH){
+    }else if(ballRight > CANVAS_WIDTH){
         console.log('Tanto para el jugador de la izquierda');
         getPlayer(0).score++;
         newBall();

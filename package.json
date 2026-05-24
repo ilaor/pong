@@ -1,0 +1,26 @@
+{
+  "name": "pong",
+  "version": "2.0.0",
+  "description": "Juego Pong Multijugador en Red",
+  "main": "game-server.js",
+  "scripts": {
+    "start": "nodemon game-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://antoniooalfaro28@bitbucket.org/aaa173/pong.git"
+  },
+  "author": "Antonio Alfaro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://bitbucket.org/aaa173/pong/issues"
+  },
+  "homepage": "https://bitbucket.org/aaa173/pong#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
